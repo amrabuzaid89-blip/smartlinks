@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Opening…</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; }
+    small { color:#555; }
+  </style>
+</head>
+<body>
+  <h3>Opening…</h3>
+  <p><small>If nothing happens, you’ll be redirected shortly.</small></p>
+
+  <script>
+    function getParam(name){
+      const v = new URLSearchParams(location.search).get(name);
+      return v ? decodeURIComponent(v) : "";
+    }
+
+    const androidUrl = getParam("android");
+    const iosUrl = getParam("ios");
+    const fallbackUrl = getParam("fallback") || "https://google.com"; // you can change default
+    const name = getParam("name");
+
+    if (!androidUrl || !iosUrl) {
+      document.body.innerHTML = "<h3>Invalid link</h3><p>Missing android/ios parameters.</p>";
+      throw new Error("Missing android/ios");
+    }
+
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /android/i.test(ua);
+
+    // Redirect
+    if (isIOS) {
+      window.location.replace(iosUrl);
+    } else if (isAndroid) {
+      window.location.replace(androidUrl);
+    } else {
+      window.location.replace(fallbackUrl);
+    }
+  </script>
+</body>
+</html>
