@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Smart Link Builder (Free)</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 24px; max-width: 720px; }
+    label { display:block; margin-top: 14px; font-weight: 600; }
+    input { width: 100%; padding: 10px; margin-top: 6px; font-size: 14px; }
+    button { margin-top: 16px; padding: 10px 14px; font-size: 14px; cursor:pointer; }
+    .box { margin-top: 16px; padding: 12px; border: 1px solid #ddd; border-radius: 10px; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; }
+    .row button { flex: 0 0 auto; }
+    code { word-break: break-all; }
+    small { color:#555; }
+  </style>
+</head>
+<body>
+  <h2>Smart Link Builder (Free)</h2>
+  <p><small>Generates one link that opens the correct store based on device type.</small></p>
+
+  <label>App Name (optional)</label>
+  <input id="name" placeholder="e.g., Family Chat" />
+
+  <label>Android (Google Play) URL *</label>
+  <input id="android" placeholder="https://play.google.com/store/apps/details?id=..." />
+
+  <label>iOS (App Store) URL *</label>
+  <input id="ios" placeholder="https://apps.apple.com/app/id123456789" />
+
+  <label>Fallback URL (optional)</label>
+  <input id="fallback" placeholder="https://yourwebsite.com" />
+
+  <button id="gen">Generate Smart Link</button>
+
+  <div class="box" id="out" style="display:none;">
+    <div><b>Your Smart Link:</b></div>
+    <p><code id="link"></code></p>
+    <div class="row">
+      <button id="copy">Copy</button>
+      <button id="test">Test</button>
+    </div>
+  </div>
+
+  <script>
+    function enc(v){ return encodeURIComponent(v.trim()); }
+
+    document.getElementById("gen").addEventListener("click", () => {
+      const name = document.getElementById("name").value || "";
+      const android = document.getElementById("android").value || "";
+      const ios = document.getElementById("ios").value || "";
+      const fallback = document.getElementById("fallback").value || "";
+
+      if (!android.trim() || !ios.trim()) {
+        alert("Please enter BOTH Android and iOS store links.");
+        return;
+      }
+
+      // Base = same folder, go.html
+      const base = new URL("./go.html", window.location.href).toString();
+
+      const params = [
+        `android=${enc(android)}`,
+        `ios=${enc(ios)}`
+      ];
+
+      if (fallback.trim()) params.push(`fallback=${enc(fallback)}`);
+      if (name.trim()) params.push(`name=${enc(name)}`);
+
+      const smartLink = `${base}?${params.join("&")}`;
+
+      document.getElementById("link").textContent = smartLink;
+      document.getElementById("out").style.display = "block";
+
+      document.getElementById("copy").onclick = async () => {
+        try {
+          await navigator.clipboard.writeText(smartLink);
+          alert("Copied!");
+        } catch (e) {
+          alert("Copy failed. You can manually copy the link.");
+        }
+      };
+
+      document.getElementById("test").onclick = () => {
+        window.open(smartLink, "_blank");
+      };
+    });
+  </script>
+</body>
+</html>
